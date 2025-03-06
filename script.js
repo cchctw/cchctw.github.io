@@ -628,6 +628,9 @@ function showExportOptions() {
       <button onclick="exportResults('json')">
         <i class="fas fa-file-code"></i> JSON檔 (.json)
       </button>
+      <button onclick="exportResults('print')">
+        <i class="fas fa-print"></i> 直接列印
+      </button>
       <button onclick="closeExportMenu()" class="cancel-button">
         <i class="fas fa-times"></i> 取消
       </button>
@@ -689,6 +692,9 @@ async function exportResults(format = 'txt') {
     case 'json':
       exportJson(resultsText);
       break;
+    case 'print':
+      printResults();
+      break;
   }
 }
 
@@ -705,20 +711,59 @@ async function exportPdf(content) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   
-  doc.setFont('helvetica');
+  // Add a styled header
+  doc.setFillColor(198, 40, 40); // Primary color
+  doc.rect(0, 0, 210, 20, 'F');
+  
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text('彰化區會考落點分析結果', 105, 12, { align: 'center' });
+  
+  // Add a watermark
+  doc.setTextColor(200, 200, 200);
+  doc.setFontSize(30);
+  doc.setFont('helvetica', 'italic');
+  doc.text('CHC 彰化區會考落點分析', 105, 150, {
+    align: 'center',
+    angle: 45
+  });
+  
+  // Set text formatting for content
+  doc.setTextColor(0, 0, 0);
   doc.setFontSize(12);
+  doc.setFont('helvetica', 'normal');
   
   const splitText = doc.splitTextToSize(content, 180);
-  let y = 20;
+  let y = 30;
   
   splitText.forEach(line => {
     if (y > 280) {
       doc.addPage();
-      y = 20;
+      // Add header to new page
+      doc.setFillColor(198, 40, 40);
+      doc.rect(0, 0, 210, 20, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.text('彰化區會考落點分析結果', 105, 12, { align: 'center' });
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal');
+      y = 30;
     }
     doc.text(line, 15, y);
     y += 7;
   });
+  
+  // Add footer
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`頁 ${i} / ${pageCount} - 產生時間: ${new Date().toLocaleString('zh-TW')}`, 105, 290, { align: 'center' });
+  }
   
   doc.save('彰化區會考落點分析結果.pdf');
 }
@@ -753,8 +798,8 @@ function exportCsv(content) {
     };
   });
   
-  // Create CSV header
-  let csvContent = '序號,學校名稱,屬性,類型,群別\n';
+  // Create CSV header with BOM for proper Chinese character encoding
+  let csvContent = '\uFEFF序號,學校名稱,屬性,類型,群別\n';
   
   // Add school data rows
   schoolList.forEach(school => {
@@ -768,24 +813,64 @@ function exportCsv(content) {
   csvContent += '本資料僅供參考，實際錄取結果以各校放榜為準。\n';
   csvContent += 'CHC 彰化區會考落點分析系統 - https://tyctw.github.io\n';
   
-  const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8' });
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
   downloadFile(blob, '彰化區會考落點分析結果.csv');
 }
 
 function exportJson(content) {
-  const lines = content.split('\n');
+  // Get form inputs
+  const scores = {
+    chinese: document.getElementById('chinese').value,
+    english: document.getElementById('english').value,
+    math: document.getElementById('math').value,
+    science: document.getElementById('science').value,
+    social: document.getElementById('social').value,
+    composition: document.getElementById('composition').value
+  };
+  
+  // Parse results
+  const resultsElement = document.getElementById('results');
+  const totalPointsElement = resultsElement.querySelector('.total-points .result-value');
+  const totalPoints = totalPointsElement ? parseInt(totalPointsElement.textContent.trim()) : 0;
+  
+  const schoolItems = resultsElement.querySelectorAll('.school-item');
+  const schools = Array.from(schoolItems).map((item, index) => {
+    const nameElement = item.querySelector('.school-name');
+    const name = nameElement ? nameElement.textContent.replace(/\d+\.\s+/, '').replace(/公立|私立/, '').trim() : '';
+    
+    const ownershipMatch = nameElement ? nameElement.textContent.match(/(公立|私立)/) : null;
+    const ownership = ownershipMatch ? ownershipMatch[1] : '';
+    
+    const details = item.querySelector('.school-details');
+    const typeMatch = details ? details.textContent.match(/類型:\s*([^,]+)/) : null;
+    const type = typeMatch ? typeMatch[1].trim() : '';
+    
+    const groupMatch = details ? details.textContent.match(/群別:\s*([^,]+)/) : null;
+    const group = groupMatch ? groupMatch[1].trim() : '';
+    
+    return { 
+      id: index + 1,
+      name, 
+      ownership,
+      type,
+      group: group || null
+    };
+  });
+  
+  // Create structured JSON
   const jsonData = {
-    title: 'CHC 彰化區會考落點分析結果',
-    generateTime: new Date().toISOString(),
-    content: lines.filter(line => line.trim()),
-    scores: {
-      chinese: document.getElementById('chinese').value,
-      english: document.getElementById('english').value,
-      math: document.getElementById('math').value,
-      science: document.getElementById('science').value,
-      social: document.getElementById('social').value,
-      composition: document.getElementById('composition').value
-    }
+    meta: {
+      title: 'CHC 彰化區會考落點分析結果',
+      generated: new Date().toISOString(),
+      version: '1.0'
+    },
+    scores,
+    results: {
+      totalPoints,
+      eligibleSchoolsCount: schools.length
+    },
+    eligibleSchools: schools,
+    disclaimer: '本資料僅供參考，實際錄取結果以各校放榜為準。'
   };
   
   const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json;charset=utf-8' });
@@ -813,5 +898,309 @@ async function loadScript(url) {
     document.head.appendChild(script);
   });
 }
+
+function printResults() {
+  logUserActivity('print_results');
+  
+  // Create a new window for printing
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) {
+    alert('請允許彈出視窗以便列印報表');
+    return;
+  }
+  
+  // Get the results content
+  const resultsElement = document.getElementById('results');
+  const title = '彰化區會考落點分析結果';
+  const now = new Date();
+  const dateTime = now.toLocaleString('zh-TW');
+  
+  // Get user inputs for the report
+  const scores = {
+    chinese: document.getElementById('chinese').value,
+    english: document.getElementById('english').value,
+    math: document.getElementById('math').value,
+    science: document.getElementById('science').value,
+    social: document.getElementById('social').value,
+    composition: document.getElementById('composition').value
+  };
+  
+  // Build print document with enhanced styling
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>${title}</title>
+      <meta charset="UTF-8">
+      <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        
+        body {
+          font-family: 'Noto Sans TC', Arial, sans-serif;
+          line-height: 1.6;
+          color: #333;
+          max-width: 800px;
+          margin: 0 auto;
+          padding: 20px;
+          background-color: #f9f9f9;
+        }
+        .report {
+          background: white;
+          padding: 30px;
+          border-radius: 10px;
+          box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .header {
+          text-align: center;
+          margin-bottom: 30px;
+          padding-bottom: 20px;
+          border-bottom: 2px solid #C62828;
+          position: relative;
+        }
+        .header:after {
+          content: '';
+          position: absolute;
+          bottom: -10px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 100px;
+          height: 5px;
+          background: #C62828;
+          border-radius: 10px;
+        }
+        .logo {
+          font-size: 28px;
+          font-weight: bold;
+          color: #C62828;
+          margin-bottom: 5px;
+          letter-spacing: 1px;
+        }
+        .datetime {
+          font-size: 14px;
+          color: #666;
+          margin-bottom: 20px;
+        }
+        .watermark {
+          background: #f9f9f9;
+          border: 1px solid #ddd;
+          border-radius: 5px;
+          padding: 15px;
+          margin-bottom: 30px;
+          text-align: center;
+          font-style: italic;
+          color: #666;
+          box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+        }
+        .scores-section {
+          background: #f0f0f0;
+          padding: 20px;
+          border-radius: 10px;
+          margin-bottom: 30px;
+          box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+        }
+        .scores-title {
+          font-size: 18px;
+          font-weight: bold;
+          margin-bottom: 15px;
+          color: #444;
+          border-bottom: 1px solid #ddd;
+          padding-bottom: 8px;
+        }
+        .scores-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 10px;
+        }
+        .score-item {
+          background: white;
+          padding: 10px;
+          border-radius: 5px;
+          text-align: center;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .score-label {
+          font-weight: bold;
+          color: #C62828;
+          margin-bottom: 5px;
+        }
+        .results-summary {
+          margin-bottom: 30px;
+        }
+        .results-summary h3 {
+          color: #C62828;
+          border-bottom: 1px solid #eee;
+          padding-bottom: 10px;
+          font-size: 20px;
+        }
+        .total-points {
+          font-size: 24px;
+          font-weight: bold;
+          color: #C62828;
+          text-align: center;
+          margin: 20px 0;
+          padding: 15px;
+          background: #ffebee;
+          border-radius: 10px;
+        }
+        .school-list {
+          margin-top: 20px;
+        }
+        .school-item {
+          background: #f9f9f9;
+          padding: 15px;
+          margin-bottom: 15px;
+          border-left: 5px solid #C62828;
+          border-radius: 0 5px 5px 0;
+          transition: all 0.3s ease;
+        }
+        .school-name {
+          font-weight: bold;
+          margin-bottom: 10px;
+          font-size: 18px;
+        }
+        .school-ownership {
+          display: inline-block;
+          background-color: #eee;
+          padding: 3px 8px;
+          border-radius: 20px;
+          font-size: 0.8em;
+          margin-left: 8px;
+          color: #555;
+        }
+        .school-details {
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.9em;
+          color: #666;
+        }
+        .footer {
+          margin-top: 50px;
+          padding-top: 20px;
+          border-top: 1px solid #eee;
+          text-align: center;
+          font-size: 12px;
+          color: #666;
+        }
+        .disclaimer {
+          padding: 15px;
+          background: #fffde7;
+          border-left: 5px solid #ffd600;
+          margin: 30px 0;
+          font-size: 14px;
+          color: #555;
+        }
+        .page-number {
+          text-align: center;
+          font-size: 12px;
+          color: #999;
+          margin-top: 30px;
+        }
+        @media print {
+          body {
+            width: 100%;
+            max-width: none;
+            background: white;
+            padding: 0;
+            margin: 0;
+          }
+          .report {
+            box-shadow: none;
+            padding: 20px;
+            margin: 0;
+          }
+          .no-print {
+            display: none;
+          }
+          .page-break {
+            page-break-after: always;
+          }
+          @page {
+            margin: 1.5cm;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="report">
+        <div class="header">
+          <div class="logo">CHC 彰化區會考落點分析系統</div>
+          <div class="datetime">報表產生時間：${dateTime}</div>
+        </div>
+        
+        <div class="watermark">
+          本報表僅供參考，實際錄取結果以各校公告為準
+        </div>
+        
+        <div class="scores-section">
+          <div class="scores-title">會考成績資料</div>
+          <div class="scores-grid">
+            <div class="score-item">
+              <div class="score-label">國文</div>
+              <div>${scores.chinese || '未填'}</div>
+            </div>
+            <div class="score-item">
+              <div class="score-label">英文</div>
+              <div>${scores.english || '未填'}</div>
+            </div>
+            <div class="score-item">
+              <div class="score-label">數學</div>
+              <div>${scores.math || '未填'}</div>
+            </div>
+            <div class="score-item">
+              <div class="score-label">自然</div>
+              <div>${scores.science || '未填'}</div>
+            </div>
+            <div class="score-item">
+              <div class="score-label">社會</div>
+              <div>${scores.social || '未填'}</div>
+            </div>
+            <div class="score-item">
+              <div class="score-label">作文</div>
+              <div>${scores.composition || '未填'} 級分</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="content">
+          ${resultsElement.innerHTML}
+        </div>
+        
+        <div class="disclaimer">
+          <strong>注意事項：</strong>本分析結果僅基於會考的成績，並不考慮其他因素如特殊才藝、體育成績、各校年度的招生政策變化等。實際錄取情況請以學校公布為準。分析資料僅供參考，請勿完全依賴本報表做出決策。
+        </div>
+        
+        <div class="footer">
+          <p>© ${new Date().getFullYear()} CHC彰化區會考落點分析系統版權所有</p>
+          <p>本報表由彰化區會考落點分析系統自動生成</p>
+        </div>
+        
+        <div class="page-number">第 1 頁</div>
+      </div>
+      
+      <div class="no-print" style="text-align: center; margin-top: 30px;">
+        <button onclick="window.print();" style="padding: 12px 25px; cursor: pointer; background: #C62828; color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" style="margin-right: 8px; vertical-align: text-bottom;" viewBox="0 0 16 16">
+            <path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2H5zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1z"/>
+            <path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2V7zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+          </svg>
+          立即列印
+        </button>
+        <button onclick="window.close();" style="padding: 12px 25px; cursor: pointer; background: #757575; color: white; border: none; border-radius: 5px; margin-left: 10px; font-size: 16px; font-weight: bold;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" style="margin-right: 8px; vertical-align: text-bottom;" viewBox="0 0 16 16">
+            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+          </svg>
+          關閉視窗
+        </button>
+      </div>
+    </body>
+    </html>
+  `);
+  
+  printWindow.document.close();
+  
+  // Auto-focus the new window
+  printWindow.focus();
+}
+// ... existing code ...
 
 initRating();

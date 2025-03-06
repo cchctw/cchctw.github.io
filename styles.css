@@ -2144,3 +2144,32 @@ button:disabled {
   background-color: #444;
   color: #ccc;
 }
+
+/* Print-specific styles */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  
+  #results, #results * {
+    visibility: visible;
+  }
+  
+  #results {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  .container {
+    box-shadow: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .header, .fullscreen-menu, .menu-icon, .dark-mode-toggle, 
+  .copyright, .export-menu, button {
+    display: none !important;
+  }
+}
