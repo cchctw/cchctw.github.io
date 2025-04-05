@@ -435,7 +435,7 @@ function displayResults(data) {
             
             <div class="more-resources">
               <h4><i class="fas fa-external-link-alt"></i> 更多升學資源</h4>
-              <p>欲了解更多關於升學資訊，請訪問 <a href="https://sites.google.com/view/cchctw/" target="_blank">彰化區會考資訊網</a></p>
+              <p>欲了解更多關於升學資訊，請訪問 <a href="https://chc.entry.edu.tw/NoExamImitate_CH/NoExamImitateHome/Page/Public/ChooseSys?s=08" target="_blank">彰化區會考資訊網</a></p>
             </div>
           </div>
         </div>
@@ -1539,7 +1539,7 @@ function printResults() {
         
         <div class="footer">
           <div class="footer-logo">CHC彰化區會考落點分析系統</div>
-          <p> 2024 版權所有</p>
+          <p> 2025 版權所有</p>
           <p>本報表由彰化區會考落點分析系統自動生成</p>
         </div>
         
