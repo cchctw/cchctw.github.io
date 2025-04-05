@@ -85,23 +85,23 @@ function showLoading() {
   loadingOverlay.innerHTML = `
     <div class="loading-spinner-container">
       <div class="loading-spinner"></div>
-      <div class="loading-text">分析中，請稍候...</div>
+      <div class="loading-text">分析中，請稍候</div>
       <div class="loading-progress"></div>
       <div class="loading-steps">
         <div class="loading-step" data-step="1">
-          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-key"></i>
           <span>驗證邀請碼</span>
         </div>
         <div class="loading-step" data-step="2">
-          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-calculator"></i>
           <span>計算總積分</span>
         </div>
         <div class="loading-step" data-step="3">
-          <i class="fas fa-check-circle"></i>
-          <span>分析落點區間</span>
+          <i class="fas fa-chart-line"></i>
+          <span>分析學校落點</span>
         </div>
         <div class="loading-step" data-step="4">
-          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-file-alt"></i>
           <span>生成分析報告</span>
         </div>
       </div>
@@ -118,11 +118,19 @@ function showLoading() {
 
 function simulateLoadingSteps() {
   const steps = document.querySelectorAll('.loading-step');
-  const stepDelay = 500; // Time between each step
-
+  const stepDelay = 800; // Time between each step
+  
   steps.forEach((step, index) => {
     setTimeout(() => {
       step.classList.add('active');
+      
+      // Add some animation to the icon for each activated step
+      const icon = step.querySelector('i');
+      icon.style.animation = 'none';
+      setTimeout(() => {
+        icon.style.animation = 'popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      }, 50);
+      
     }, stepDelay * (index + 1));
   });
 }
@@ -131,11 +139,11 @@ function hideLoading() {
   const loadingOverlay = document.querySelector('.loading-overlay');
   if (loadingOverlay) {
     loadingOverlay.style.opacity = '0';
-    loadingOverlay.style.transition = 'opacity 0.3s ease';
+    loadingOverlay.style.transition = 'opacity 0.5s ease';
     
     setTimeout(() => {
       loadingOverlay.remove();
-    }, 300);
+    }, 500);
   }
 }
 
@@ -303,7 +311,7 @@ async function analyzeScores() {
       analyzeButton.disabled = false;
       analyzeButton.innerHTML = '<i class="fas fa-search icon"></i>分析落點';
     }
-    setTimeout(hideLoading, 2000);
+    setTimeout(hideLoading, 3000); // Allow animation to complete
   }
 }
 
@@ -363,7 +371,44 @@ function displayResults(data) {
         </div>`;
   }
   
+  // Add analysis explanation section
   resultsHTML += `
+        <div class="analysis-explanation">
+          <h3><i class="fas fa-info-circle icon"></i> 分析說明</h3>
+          <div class="explanation-content">
+            <p>本系統根據您輸入的會考成績計算總積分，並與各校歷年錄取門檻進行比對，顯示可能錄取的學校。</p>
+            <div class="explanation-points">
+              <div class="explanation-point">
+                <i class="fas fa-calculator"></i>
+                <div>
+                  <h4>如何計算總積分</h4>
+                  <p>依照會考5科目等級計算：<br>A++, A+, A = 6分<br>B++, B+, B = 4分<br>C = 2分</p>
+                </div>
+              </div>
+              <div class="explanation-point">
+                <i class="fas fa-chart-line"></i>
+                <div>
+                  <h4>錄取機率說明</h4>
+                  <p>列出的學校是根據您的總積分有可能錄取的學校，但實際錄取結果還受多種因素影響。</p>
+                </div>
+              </div>
+              <div class="explanation-point">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                  <h4>注意事項</h4>
+                  <p>本分析結果僅供參考，實際錄取情況可能會受到當年報考人數、特殊加分政策等因素影響。</p>
+                </div>
+              </div>
+              <div class="explanation-point">
+                <i class="fas fa-lightbulb"></i>
+                <div>
+                  <h4>建議</h4>
+                  <p>請結合個人興趣、志向與專長，並諮詢學校輔導老師意見，做出最適合自己的升學選擇。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="data-update-time">資料更新時間：${new Date().toLocaleString('zh-TW')}</div>
       </div>
     </div>`;
@@ -1188,7 +1233,7 @@ function printResults() {
         </div>
         
         <div class="footer">
-          <p>© ${new Date().getFullYear()} CHC彰化區會考落點分析系統版權所有</p>
+          <p> 2024 CHC彰化區會考落點分析系統版權所有</p>
           <p>本報表由彰化區會考落點分析系統自動生成</p>
         </div>
         
