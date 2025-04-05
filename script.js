@@ -744,7 +744,49 @@ async function exportResults(format = 'txt') {
 }
 
 function exportTxt(content) {
-  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  const now = new Date();
+  const dateTime = now.toLocaleString('zh-TW');
+  
+  let formattedContent = 
+    "============================================================\n" +
+    "                彰化區會考落點分析系統                      \n" +
+    "============================================================\n\n" +
+    `報表產生時間: ${dateTime}\n\n` +
+    "------------------------------------------------------------\n" +
+    "                        分析結果                            \n" +
+    "------------------------------------------------------------\n\n";
+  
+  const resultsElement = document.getElementById('results');
+  const totalPointsElement = resultsElement.querySelector('.total-points .result-value');
+  const totalPoints = totalPointsElement ? totalPointsElement.textContent.trim() : '';
+  
+  formattedContent += `總積分: ${totalPoints}\n\n`;
+  formattedContent += "可能錄取學校:\n";
+  formattedContent += "------------------------------------------------------------\n";
+  
+  const schoolItems = resultsElement.querySelectorAll('.school-item');
+  if (schoolItems.length > 0) {
+    Array.from(schoolItems).forEach((item, index) => {
+      const nameElement = item.querySelector('.school-name');
+      const name = nameElement ? nameElement.textContent.replace(/\d+\.\s+/, '').trim() : '';
+      
+      const details = item.querySelector('.school-details');
+      const detailsText = details ? details.textContent.trim() : '';
+      
+      formattedContent += `${index + 1}. ${name}\n`;
+      formattedContent += `   ${detailsText}\n`;
+      formattedContent += "   --------------------\n";
+    });
+  } else {
+    formattedContent += "未找到符合條件的學校\n";
+    formattedContent += "------------------------------------------------------------\n";
+  }
+  
+  formattedContent += "\n============================================================\n";
+  formattedContent += "注意事項: 本分析結果僅供參考，實際錄取結果以各校公告為準。\n";
+  formattedContent += "============================================================\n";
+  
+  const blob = new Blob([formattedContent], { type: 'text/plain;charset=utf-8' });
   downloadFile(blob, '彰化區會考落點分析結果.txt');
 }
 
@@ -756,8 +798,7 @@ async function exportPdf(content) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   
-  // Add a styled header
-  doc.setFillColor(198, 40, 40); // Primary color
+  doc.setFillColor(198, 40, 40); 
   doc.rect(0, 0, 210, 20, 'F');
   
   doc.setTextColor(255, 255, 255);
@@ -765,7 +806,6 @@ async function exportPdf(content) {
   doc.setFont('helvetica', 'bold');
   doc.text('彰化區會考落點分析結果', 105, 12, { align: 'center' });
   
-  // Add a watermark
   doc.setTextColor(200, 200, 200);
   doc.setFontSize(30);
   doc.setFont('helvetica', 'italic');
@@ -774,7 +814,6 @@ async function exportPdf(content) {
     angle: 45
   });
   
-  // Set text formatting for content
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(12);
   doc.setFont('helvetica', 'normal');
@@ -785,7 +824,6 @@ async function exportPdf(content) {
   splitText.forEach(line => {
     if (y > 280) {
       doc.addPage();
-      // Add header to new page
       doc.setFillColor(198, 40, 40);
       doc.rect(0, 0, 210, 20, 'F');
       doc.setTextColor(255, 255, 255);
@@ -801,7 +839,6 @@ async function exportPdf(content) {
     y += 7;
   });
   
-  // Add footer
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
@@ -814,7 +851,6 @@ async function exportPdf(content) {
 }
 
 function exportCsv(content) {
-  // Extract key information from the results
   const resultsElement = document.getElementById('results');
   const totalPointsElement = resultsElement.querySelector('.total-points .result-value');
   const totalPoints = totalPointsElement ? totalPointsElement.textContent.trim() : '';
@@ -843,15 +879,12 @@ function exportCsv(content) {
     };
   });
   
-  // Create CSV header with BOM for proper Chinese character encoding
   let csvContent = '\uFEFF序號,學校名稱,屬性,類型,群別\n';
   
-  // Add school data rows
   schoolList.forEach(school => {
     csvContent += `${school.序號},${school.學校名稱},${school.屬性},${school.類型},${school.群別}\n`;
   });
   
-  // Add summary information
   csvContent += '\n會考成績分析結果\n';
   csvContent += `總積分,${totalPoints}\n`;
   csvContent += `分析時間,${new Date().toLocaleString('zh-TW')}\n`;
@@ -863,7 +896,6 @@ function exportCsv(content) {
 }
 
 function exportJson(content) {
-  // Get form inputs
   const scores = {
     chinese: document.getElementById('chinese').value,
     english: document.getElementById('english').value,
@@ -873,7 +905,6 @@ function exportJson(content) {
     composition: document.getElementById('composition').value
   };
   
-  // Parse results
   const resultsElement = document.getElementById('results');
   const totalPointsElement = resultsElement.querySelector('.total-points .result-value');
   const totalPoints = totalPointsElement ? parseInt(totalPointsElement.textContent.trim()) : 0;
@@ -883,26 +914,18 @@ function exportJson(content) {
     const nameElement = item.querySelector('.school-name');
     const name = nameElement ? nameElement.textContent.replace(/\d+\.\s+/, '').replace(/公立|私立/, '').trim() : '';
     
-    const ownershipMatch = nameElement ? nameElement.textContent.match(/(公立|私立)/) : null;
-    const ownership = ownershipMatch ? ownershipMatch[1] : '';
-    
     const details = item.querySelector('.school-details');
-    const typeMatch = details ? details.textContent.match(/類型:\s*([^,]+)/) : null;
-    const type = typeMatch ? typeMatch[1].trim() : '';
-    
-    const groupMatch = details ? details.textContent.match(/群別:\s*([^,]+)/) : null;
-    const group = groupMatch ? groupMatch[1].trim() : '';
+    const detailsText = details ? details.textContent.trim() : '';
     
     return { 
       id: index + 1,
       name, 
-      ownership,
-      type,
-      group: group || null
+      ownership: nameElement ? nameElement.textContent.match(/(公立|私立)/)[1] : '',
+      type: detailsText.match(/類型:\s*([^,]+)/)[1].trim(),
+      group: detailsText.match(/群別:\s*([^,]+)/) ? detailsText.match(/群別:\s*([^,]+)/)[1].trim() : null
     };
   });
   
-  // Create structured JSON
   const jsonData = {
     meta: {
       title: 'CHC 彰化區會考落點分析結果',
@@ -947,20 +970,17 @@ async function loadScript(url) {
 function printResults() {
   logUserActivity('print_results');
   
-  // Create a new window for printing
   const printWindow = window.open('', '_blank');
   if (!printWindow) {
     alert('請允許彈出視窗以便列印報表');
     return;
   }
   
-  // Get the results content
   const resultsElement = document.getElementById('results');
   const title = '彰化區會考落點分析結果';
   const now = new Date();
   const dateTime = now.toLocaleString('zh-TW');
   
-  // Get user inputs for the report
   const scores = {
     chinese: document.getElementById('chinese').value,
     english: document.getElementById('english').value,
@@ -970,7 +990,36 @@ function printResults() {
     composition: document.getElementById('composition').value
   };
   
-  // Build print document with enhanced styling
+  const totalPointsElement = resultsElement.querySelector('.total-points .result-value');
+  const totalPoints = totalPointsElement ? totalPointsElement.textContent.trim() : '';
+  
+  const schoolItems = resultsElement.querySelectorAll('.school-item');
+  let schoolsHTML = '';
+  
+  if (schoolItems.length > 0) {
+    Array.from(schoolItems).forEach((item, index) => {
+      const nameElement = item.querySelector('.school-name');
+      const name = nameElement ? nameElement.textContent.replace(/\d+\.\s+/, '').trim() : '';
+      
+      const details = item.querySelector('.school-details');
+      const detailsText = details ? details.textContent.trim() : '';
+      
+      schoolsHTML += `
+        <div class="school-item">
+          <div class="school-name">${index + 1}. ${name}</div>
+          <div class="school-details">${detailsText}</div>
+        </div>
+      `;
+    });
+  } else {
+    schoolsHTML = `
+      <div class="no-schools">
+        <p>未找到符合條件的學校</p>
+        <p>請嘗試調整您的成績或篩選條件</p>
+      </div>
+    `;
+  }
+  
   printWindow.document.write(`
     <!DOCTYPE html>
     <html>
@@ -996,151 +1045,297 @@ function printResults() {
           border-radius: 10px;
           box-shadow: 0 5px 15px rgba(0,0,0,0.1);
           position: relative;
+          overflow: hidden;
         }
         .header {
           text-align: center;
           margin-bottom: 30px;
           padding-bottom: 20px;
-          border-bottom: 2px solid #C62828;
+          border-bottom: 2px solid #4a6fa5;
           position: relative;
         }
         .header:after {
           content: '';
           position: absolute;
-          bottom: -10px;
+          bottom: -2px;
           left: 50%;
           transform: translateX(-50%);
-          width: 100px;
-          height: 5px;
-          background: #C62828;
+          width: 150px;
+          height: 4px;
+          background: linear-gradient(90deg, #4a6fa5, #ff9e43, #4a6fa5);
           border-radius: 10px;
         }
         .logo {
           font-size: 28px;
           font-weight: bold;
-          color: #C62828;
-          margin-bottom: 5px;
+          color: #4a6fa5;
+          margin-bottom: 10px;
           letter-spacing: 1px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+        }
+        .logo-icon {
+          width: 40px;
+          height: 40px;
+          background: #4a6fa5;
+          color: white;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 20px;
         }
         .datetime {
           font-size: 14px;
           color: #666;
-          margin-bottom: 20px;
+          margin: 15px 0;
+          padding: 8px 15px;
+          background: #f5f7fa;
+          border-radius: 20px;
+          display: inline-block;
         }
         .watermark {
-          background: #f9f9f9;
-          border: 1px solid #ddd;
-          border-radius: 5px;
+          background: #f5f7fa;
+          border: 1px dashed #bdc3c7;
+          border-radius: 8px;
           padding: 15px;
           margin-bottom: 30px;
           text-align: center;
           font-style: italic;
           color: #666;
-          box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+          position: relative;
+        }
+        .watermark:before {
+          content: '⚠️';
+          position: absolute;
+          left: 15px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 20px;
         }
         .scores-section {
-          background: #f0f0f0;
-          padding: 20px;
-          border-radius: 10px;
+          background: linear-gradient(145deg, #f8f9fa, #e6e9ef);
+          padding: 25px;
+          border-radius: 12px;
           margin-bottom: 30px;
-          box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+          box-shadow: 0 3px 10px rgba(0,0,0,0.05);
         }
         .scores-title {
-          font-size: 18px;
+          font-size: 20px;
           font-weight: bold;
-          margin-bottom: 15px;
-          color: #444;
-          border-bottom: 1px solid #ddd;
-          padding-bottom: 8px;
+          margin-bottom: 20px;
+          color: #4a6fa5;
+          display: flex;
+          align-items: center;
+          gap: 10px;
         }
         .scores-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
-          gap: 10px;
+          gap: 15px;
         }
         .score-item {
           background: white;
-          padding: 10px;
-          border-radius: 5px;
+          padding: 15px 10px;
+          border-radius: 8px;
           text-align: center;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+          box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+          border-bottom: 3px solid #4a6fa5;
+          transition: all 0.3s ease;
+        }
+        .score-item:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         .score-label {
           font-weight: bold;
-          color: #C62828;
-          margin-bottom: 5px;
+          color: #4a6fa5;
+          margin-bottom: 8px;
+          font-size: 15px;
+        }
+        .score-value {
+          font-size: 18px;
+          font-weight: bold;
+          color: #2c3e50;
         }
         .results-summary {
-          margin-bottom: 30px;
-        }
-        .results-summary h3 {
-          color: #C62828;
-          border-bottom: 1px solid #eee;
-          padding-bottom: 10px;
-          font-size: 20px;
-        }
-        .total-points {
-          font-size: 24px;
-          font-weight: bold;
-          color: #C62828;
+          margin: 40px 0;
           text-align: center;
-          margin: 20px 0;
-          padding: 15px;
-          background: #ffebee;
-          border-radius: 10px;
+        }
+        .total-points-container {
+          background: linear-gradient(145deg, #4a6fa5, #3b5a85);
+          color: white;
+          padding: 25px;
+          border-radius: 15px;
+          text-align: center;
+          width: 60%;
+          margin: 0 auto 30px;
+          box-shadow: 0 5px 20px rgba(74, 111, 165, 0.3);
+          position: relative;
+          overflow: hidden;
+        }
+        .total-points-container:before {
+          content: '';
+          position: absolute;
+          top: -50%;
+          left: -50%;
+          width: 200%;
+          height: 200%;
+          background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+          opacity: 0.6;
+        }
+        .total-points-label {
+          font-size: 18px;
+          margin-bottom: 10px;
+          font-weight: 500;
+          letter-spacing: 1px;
+        }
+        .total-points-value {
+          font-size: 48px;
+          font-weight: bold;
+          text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .schools-section {
+          margin: 40px 0;
+        }
+        .schools-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 20px;
+          background: linear-gradient(to right, #f5f7fa, transparent);
+          padding: 10px 15px;
+          border-radius: 8px;
+        }
+        .schools-title {
+          font-size: 20px;
+          font-weight: bold;
+          color: #4a6fa5;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .schools-count {
+          background: #4a6fa5;
+          color: white;
+          padding: 5px 12px;
+          border-radius: 20px;
+          font-size: 14px;
+          font-weight: bold;
         }
         .school-list {
           margin-top: 20px;
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 20px;
         }
         .school-item {
-          background: #f9f9f9;
-          padding: 15px;
-          margin-bottom: 15px;
-          border-left: 5px solid #C62828;
-          border-radius: 0 5px 5px 0;
+          background: white;
+          padding: 20px;
+          border-radius: 10px;
+          box-shadow: 0 3px 15px rgba(0,0,0,0.05);
+          border-left: 5px solid #4a6fa5;
           transition: all 0.3s ease;
+          position: relative;
+          overflow: hidden;
+        }
+        .school-item:after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          height: 5px;
+          background: linear-gradient(to right, #4a6fa5, #ff9e43);
+        }
+        .school-item:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 8px 25px rgba(0,0,0,0.1);
         }
         .school-name {
           font-weight: bold;
-          margin-bottom: 10px;
+          margin-bottom: 15px;
           font-size: 18px;
+          color: #2c3e50;
+          display: flex;
+          align-items: flex-start;
+          line-height: 1.4;
         }
         .school-ownership {
           display: inline-block;
           background-color: #eee;
-          padding: 3px 8px;
+          padding: 3px 10px;
           border-radius: 20px;
-          font-size: 0.8em;
+          font-size: 0.75em;
           margin-left: 8px;
           color: #555;
+          white-space: nowrap;
         }
         .school-details {
-          display: flex;
-          justify-content: space-between;
-          font-size: 0.9em;
           color: #666;
+          font-size: 0.95em;
+          line-height: 1.6;
+        }
+        .no-schools {
+          background: #f8f9fa;
+          padding: 30px;
+          border-radius: 10px;
+          text-align: center;
+          color: #7f8c8d;
+          font-size: 18px;
+          border: 2px dashed #bdc3c7;
+        }
+        .disclaimer {
+          padding: 20px;
+          background: #fffde7;
+          border-left: 5px solid #ffd600;
+          margin: 40px 0 30px;
+          font-size: 15px;
+          color: #5d4037;
+          line-height: 1.8;
+          position: relative;
+        }
+        .disclaimer-title {
+          font-weight: bold;
+          margin-bottom: 10px;
+          color: #f57c00;
+          font-size: 16px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
         }
         .footer {
           margin-top: 50px;
           padding-top: 20px;
           border-top: 1px solid #eee;
           text-align: center;
-          font-size: 12px;
-          color: #666;
+          font-size: 13px;
+          color: #7f8c8d;
+          position: relative;
         }
-        .disclaimer {
-          padding: 15px;
-          background: #fffde7;
-          border-left: 5px solid #ffd600;
-          margin: 30px 0;
-          font-size: 14px;
-          color: #555;
+        .footer:before {
+          content: '';
+          position: absolute;
+          top: -2px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 100px;
+          height: 3px;
+          background: linear-gradient(to right, transparent, #bdc3c7, transparent);
+        }
+        .footer-logo {
+          font-weight: bold;
+          color: #4a6fa5;
+          margin-bottom: 5px;
         }
         .page-number {
           text-align: center;
           font-size: 12px;
           color: #999;
           margin-top: 30px;
+          font-style: italic;
         }
         .watermark-overlay {
           position: absolute;
@@ -1153,6 +1348,52 @@ function printResults() {
           white-space: nowrap;
           pointer-events: none;
           z-index: 0;
+        }
+        .print-controls {
+          text-align: center;
+          margin-top: 40px;
+          padding: 20px;
+          background: #f5f7fa;
+          border-radius: 10px;
+        }
+        .print-button {
+          padding: 12px 25px;
+          cursor: pointer;
+          background: linear-gradient(145deg, #4a6fa5, #3b5a85);
+          color: white;
+          border: none;
+          border-radius: 50px;
+          font-size: 16px;
+          font-weight: bold;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          box-shadow: 0 4px 15px rgba(74, 111, 165, 0.3);
+          transition: all 0.3s ease;
+        }
+        .print-button:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 6px 20px rgba(74, 111, 165, 0.4);
+        }
+        .close-button {
+          padding: 12px 25px;
+          cursor: pointer;
+          background: linear-gradient(145deg, #95a5a6, #7f8c8d);
+          color: white;
+          border: none;
+          border-radius: 50px;
+          margin-left: 10px;
+          font-size: 16px;
+          font-weight: bold;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          box-shadow: 0 4px 15px rgba(127, 140, 141, 0.3);
+          transition: all 0.3s ease;
+        }
+        .close-button:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 6px 20px rgba(127, 140, 141, 0.4);
         }
         @media print {
           body {
@@ -1167,17 +1408,18 @@ function printResults() {
             padding: 20px;
             margin: 0;
           }
-          .no-print {
+          .print-controls {
             display: none;
           }
           .page-break {
             page-break-after: always;
           }
           .watermark-overlay {
-            color: rgba(200, 200, 200, 0.1);
+            color: rgba(200, 200, 200, 0.08);
           }
           @page {
             margin: 1.5cm;
+            size: portrait;
           }
         }
       </style>
@@ -1186,7 +1428,10 @@ function printResults() {
       <div class="watermark-overlay">CHC 彰化區會考落點分析</div>
       <div class="report">
         <div class="header">
-          <div class="logo">CHC 彰化區會考落點分析系統</div>
+          <div class="logo">
+            <div class="logo-icon">📊</div>
+            CHC 彰化區會考落點分析系統
+          </div>
           <div class="datetime">報表產生時間：${dateTime}</div>
         </div>
         
@@ -1195,62 +1440,92 @@ function printResults() {
         </div>
         
         <div class="scores-section">
-          <div class="scores-title">會考成績資料</div>
+          <div class="scores-title">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM13 18H11V16H13V18ZM13 14H11V10H13V14ZM17 18H15V13H17V18Z" fill="#4a6fa5"/>
+            </svg>
+            會考成績資料
+          </div>
           <div class="scores-grid">
             <div class="score-item">
               <div class="score-label">國文</div>
-              <div>${scores.chinese || '未填'}</div>
+              <div class="score-value">${scores.chinese || '未填'}</div>
             </div>
             <div class="score-item">
               <div class="score-label">英文</div>
-              <div>${scores.english || '未填'}</div>
+              <div class="score-value">${scores.english || '未填'}</div>
             </div>
             <div class="score-item">
               <div class="score-label">數學</div>
-              <div>${scores.math || '未填'}</div>
+              <div class="score-value">${scores.math || '未填'}</div>
             </div>
             <div class="score-item">
               <div class="score-label">自然</div>
-              <div>${scores.science || '未填'}</div>
+              <div class="score-value">${scores.science || '未填'}</div>
             </div>
             <div class="score-item">
               <div class="score-label">社會</div>
-              <div>${scores.social || '未填'}</div>
+              <div class="score-value">${scores.social || '未填'}</div>
             </div>
             <div class="score-item">
               <div class="score-label">作文</div>
-              <div>${scores.composition || '未填'} 級分</div>
+              <div class="score-value">${scores.composition || '未填'} 級分</div>
             </div>
           </div>
         </div>
         
-        <div class="content">
-          ${resultsElement.innerHTML}
+        <div class="results-summary">
+          <div class="total-points-container">
+            <div class="total-points-label">總積分</div>
+            <div class="total-points-value">${totalPoints}</div>
+          </div>
+        </div>
+        
+        <div class="schools-section">
+          <div class="schools-header">
+            <div class="schools-title">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3L1 9L5 11.18V17.18L12 21L19 17.18V11.18L21 10.09V17H23V9L12 3ZM18.82 9L12 12.72L5.18 9L12 5.28L18.82 9ZM17 15.99L12 18.72L7 15.99V12.27L12 15L17 12.27V15.99Z" fill="#4a6fa5"/>
+              </svg>
+              可能錄取學校
+            </div>
+            <div class="schools-count">${schoolItems.length} 所學校</div>
+          </div>
+          
+          <div class="school-list">
+            ${schoolsHTML}
+          </div>
         </div>
         
         <div class="disclaimer">
-          <strong>注意事項：</strong>本分析結果僅基於會考的成績，並不考慮其他因素如特殊才藝、體育成績、各校年度的招生政策變化等。實際錄取情況請以學校公布為準。分析資料僅供參考，請勿完全依賴本報表做出決策。
+          <div class="disclaimer-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 21H23L12 2L1 21ZM13 18H11V16H13V18ZM13 14H11V10H13V14ZM17 18H15V13H17V18Z" fill="#f57c00"/>
+            </svg>
+            注意事項
+          </div>
+          <p>本分析結果僅基於會考的成績，並不考慮其他因素如特殊才藝、體育成績、各校年度的招生政策變化等。實際錄取情況請以學校公布為準。分析資料僅供參考，請勿完全依賴本報表做出決策。</p>
         </div>
         
         <div class="footer">
-          <p> 2024 CHC彰化區會考落點分析系統版權所有</p>
+          <div class="footer-logo">CHC彰化區會考落點分析系統</div>
+          <p> 2024 版權所有</p>
           <p>本報表由彰化區會考落點分析系統自動生成</p>
         </div>
         
         <div class="page-number">第 1 頁</div>
       </div>
       
-      <div class="no-print" style="text-align: center; margin-top: 30px;">
-        <button onclick="window.print();" style="padding: 12px 25px; cursor: pointer; background: #C62828; color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" style="margin-right: 8px; vertical-align: text-bottom;" viewBox="0 0 16 16">
-            <path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2H5zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1z"/>
-            <path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2V7zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+      <div class="print-controls">
+        <button class="print-button" onclick="window.print();">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 8H5C3.34 8 2 9.34 2 11V17H6V21H18V17H22V11C22 9.34 20.66 8 19 8ZM16 19H8V14H16V19ZM19 12C18.45 12 18 11.55 18 11C18 10.45 18.45 10 19 10C19.55 10 20 10.45 20 11C20 11.55 19.55 12 19 12ZM18 3H6V7H18V3Z" fill="white"/>
           </svg>
-          立即列印
+          列印報表
         </button>
-        <button onclick="window.close();" style="padding: 12px 25px; cursor: pointer; background: #757575; color: white; border: none; border-radius: 5px; margin-left: 10px; font-size: 16px; font-weight: bold;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" style="margin-right: 8px; vertical-align: text-bottom;" viewBox="0 0 16 16">
-            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+        <button class="close-button" onclick="window.close();">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z" fill="white"/>
           </svg>
           關閉視窗
         </button>
@@ -1261,6 +1536,5 @@ function printResults() {
   
   printWindow.document.close();
   
-  // Auto-focus the new window
   printWindow.focus();
 }
