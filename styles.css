@@ -1,19 +1,21 @@
 /* Import Google Font */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
 
 :root {
-  --primary-color: #C62828;  /* 強烈紅色 */
-  --secondary-color: #F9A825;  /* 溫暖金色 */
-  --background-color: #FFF8E1; /* 乳白奶油色 */
-  --text-color: #4E342E;       /* 深棕色 */
+  --primary-color: #4a6fa5;  /* 深藍色 */
+  --secondary-color: #ff9e43;  /* 橙色 */
+  --background-color: #f5f7fa; /* 淺灰藍色 */
+  --text-color: #333f4d;       /* 深灰藍色 */
   --card-background: #FFFFFF;  /* 白色 */
-  --shadow-color: rgba(0, 0, 0, 0.15);
-  --accent-color: #FF5722;     /* 鮮明橙色 */
-  --menu-background: rgba(198, 40, 40, 0.95); /* 主選單背景：深紅 */
+  --shadow-color: rgba(0, 0, 0, 0.05);
+  --accent-color: #ff6b6b;     /* 淺紅色 */
+  --menu-background: rgba(74, 111, 165, 0.95); /* 主選單背景：深藍 */
+  --border-radius: 16px;
+  --border-color: #e1e8ed;
 }
 
 body {
-  font-family: 'Noto Sans TC', sans-serif;
+  font-family: 'Nunito', 'Noto Sans TC', sans-serif;
   background-color: var(--background-color);
   margin: 0;
   padding: 0;
@@ -22,13 +24,14 @@ body {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  line-height: 1.6;
 }
 
 .container {
   background: var(--card-background);
   padding: 2.5rem;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px var(--shadow-color);
+  border-radius: var(--border-radius);
+  box-shadow: 0 10px 40px var(--shadow-color);
   max-width: 800px;
   width: 90%;
   margin: 80px auto 20px;
@@ -38,7 +41,7 @@ body {
 
 .container:hover {
   transform: translateY(-5px);
-  box-shadow: 0 15px 35px var(--shadow-color);
+  box-shadow: 0 15px 40px var(--shadow-color);
 }
 
 h1, h2, h3 {
@@ -105,7 +108,7 @@ select, input[type="text"] {
 select:focus, input[type="text"]:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.2);
+  box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
   background-color: #fff;
 }
 
@@ -122,7 +125,7 @@ button {
 }
 
 button:hover {
-  background-color: #B71C1C;
+  background-color: #3b5a85;
   transform: translateY(-2px);
   box-shadow: 0 6px 8px var(--shadow-color);
 }
@@ -175,7 +178,7 @@ button:hover {
 }
 
 .instruction-toggle:hover, .disclaimer-toggle:hover {
-  background-color: #FFC107;
+  background-color: #f08c30;
   transform: translateY(-2px);
   box-shadow: 0 4px 6px var(--shadow-color);
 }
@@ -349,7 +352,7 @@ button:hover {
 }
 
 .file-input-label:hover, #scanQRCode:hover {
-  background-color: #FFC107;
+  background-color: #f08c30;
   transform: translateY(-2px);
   box-shadow: 0 6px 8px var(--shadow-color);
 }
@@ -384,7 +387,7 @@ button:hover {
 }
 
 .invite-link:hover {
-  background-color: #FF8A65;
+  background-color: #ff8a65;
   transform: translateY(-2px);
   box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
@@ -491,7 +494,7 @@ button:hover {
 }
 
 .confirm-button:hover {
-  background-color: #B71C1C;
+  background-color: #3b5a85;
 }
 
 /* 匯出選單樣式 */
@@ -576,7 +579,7 @@ button:hover {
 }
 
 .export-menu .cancel-button:hover {
-  background: #FF8A65;
+  background: #ff8a65;
 }
 
 /* Dark mode adjustments */
@@ -610,12 +613,12 @@ button:hover {
 
 /* Dark mode樣式 */
 .dark-mode {
-  --background-color: #311B1B;  /* 深酒紅 */
-  --text-color: #FBE9E7;        /* 淡奶油色 */
-  --card-background: #4E342E;   /* 深棕卡片背景 */
-  --shadow-color: rgba(0, 0, 0, 0.3);
-  --input-background: #5D4037;  /* 較暗的棕色輸入背景 */
-  --border-color: #5D4037;
+  --background-color: #1a2027;  /* 深藍灰 */
+  --text-color: #e9ecef;        /* 淺灰白 */
+  --card-background: #2a3842;   /* 深灰藍卡片背景 */
+  --shadow-color: rgba(0, 0, 0, 0.15);
+  --input-background: #394956;  /* 較暗的藍灰輸入背景 */
+  --border-color: #3e4a56;
   transition: background-color 0.5s ease, color 0.5s ease;
 }
 
@@ -777,7 +780,7 @@ button:hover {
 .dark-mode select:focus,
 .dark-mode input[type="text"]:focus {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.3);
+  box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.3);
 }
 
 /* Smooth transition for all elements */
@@ -1568,7 +1571,7 @@ button:hover {
 }
 
 #submitRating.rating-button {
-  background: linear-gradient(135deg, #C62828, #B71C1C);
+  background: linear-gradient(135deg, #4a6fa5, #3b5a85);
   color: white;
   border: none;
   padding: 15px 30px;
@@ -1576,7 +1579,7 @@ button:hover {
   border-radius: 50px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 15px rgba(198, 40, 40, 0.3);
+  box-shadow: 0 4px 15px rgba(74, 111, 165, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1594,7 +1597,7 @@ button:hover {
   left: -2px;
   right: -2px;
   bottom: -2px;
-  background: linear-gradient(270deg, #C62828, #F9A825, #C62828);
+  background: linear-gradient(270deg, #4a6fa5, #ff9e43, #4a6fa5);
   background-size: 200% 200%;
   animation: borderGradient 3s ease infinite;
   z-index: -1;
@@ -1609,7 +1612,7 @@ button:hover {
 
 #submitRating.rating-button:hover {
   transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 7px 20px rgba(198, 40, 40, 0.4);
+  box-shadow: 0 7px 20px rgba(74, 111, 165, 0.4);
 }
 
 #submitRating.rating-button:active {
@@ -1749,7 +1752,7 @@ button:hover {
 }
 
 .instruction-item .highlight {
-  background: rgba(198, 40, 40, 0.1);
+  background: rgba(74, 111, 165, 0.1);
   padding: 0.5rem 1rem;
   border-radius: 6px;
   margin: 1rem 0;
@@ -1768,8 +1771,8 @@ button:hover {
 }
 
 .dark-mode .instruction-item .highlight {
-  background: rgba(198, 40, 40, 0.2);
-  color: #C62828;
+  background: rgba(74, 111, 165, 0.2);
+  color: #4a6fa5;
 }
 
 .dark-mode .instruction-item li::before {
@@ -2172,4 +2175,118 @@ button:disabled {
   .copyright, .export-menu, button {
     display: none !important;
   }
+}
+
+.site-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.subtitle {
+  color: var(--text-color);
+  font-size: 1.1rem;
+  opacity: 0.8;
+  margin-top: -0.5rem;
+}
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.invite-link, .instruction-toggle, .disclaimer-toggle {
+  padding: 0.8rem 1.5rem;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  flex: 1;
+  min-width: 160px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.invite-link {
+  background-color: var(--primary-color);
+  color: white;
+  text-decoration: none;
+}
+
+.invite-link:hover {
+  background-color: #3b5a85;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+.instruction-toggle, .disclaimer-toggle {
+  background-color: var(--secondary-color);
+  color: var(--text-color);
+  border: none;
+  cursor: pointer;
+}
+
+.instruction-toggle:hover, .disclaimer-toggle:hover {
+  background-color: #f08c30;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+.form-group {
+  background-color: #f8f9fa;
+  padding: 1.2rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 1.5rem;
+  text-align: left;
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.form-group:hover {
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  transform: translateY(-2px);
+}
+
+.dark-mode .form-group {
+  background-color: var(--input-background);
+  border-color: var(--border-color);
+}
+
+.site-footer {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 2rem 0;
+  margin-top: auto;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+.footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.dark-mode .site-footer {
+  background-color: #2c3e50;
 }
