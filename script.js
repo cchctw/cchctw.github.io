@@ -35,16 +35,13 @@ function toggleVocationalGroup() {
 }
 
 function toggleInstructions() {
-  var instructions = document.getElementById('instructions');
-  if (instructions.style.display === 'none' || instructions.style.display === '') {
-    instructions.style.display = 'block';
-    instructions.style.animation = 'fadeIn 0.5s ease-out';
-  } else {
-    instructions.style.animation = 'fadeOut 0.5s ease-out';
-    setTimeout(() => {
-      instructions.style.display = 'none';
-    }, 500);
-  }
+  var instructionsModal = document.getElementById('instructionsModal');
+  instructionsModal.style.display = 'block';
+}
+
+function closeInstructions() {
+  var instructionsModal = document.getElementById('instructionsModal');
+  instructionsModal.style.display = 'none';
 }
 
 function showDisclaimer() {
@@ -386,6 +383,9 @@ document.getElementById('exportResults').onclick = showExportOptions;
 
 window.onload = function() {
   showDisclaimer();
+  
+  // Initialize rating system
+  initRating();
 };
 
 document.oncontextmenu = function () {
@@ -687,10 +687,10 @@ async function exportResults(format = 'txt') {
       await exportPdf(contentWithWatermark);
       break;
     case 'csv':
-      exportCsv(resultsText);
+      exportCsv(contentWithWatermark);
       break;
     case 'json':
-      exportJson(resultsText);
+      exportJson(contentWithWatermark);
       break;
     case 'print':
       printResults();
@@ -1201,6 +1201,3 @@ function printResults() {
   // Auto-focus the new window
   printWindow.focus();
 }
-// ... existing code ...
-
-initRating();
