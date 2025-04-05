@@ -371,41 +371,71 @@ function displayResults(data) {
         </div>`;
   }
   
-  // Add analysis explanation section
+  // Enhanced analysis explanation section with improved visual design
   resultsHTML += `
         <div class="analysis-explanation">
-          <h3><i class="fas fa-info-circle icon"></i> 分析說明</h3>
+          <h3><i class="fas fa-lightbulb icon"></i> 分析說明與建議</h3>
           <div class="explanation-content">
-            <p>本系統根據您輸入的會考成績計算總積分，並與各校歷年錄取門檻進行比對，顯示可能錄取的學校。</p>
-            <div class="explanation-points">
-              <div class="explanation-point">
-                <i class="fas fa-calculator"></i>
-                <div>
-                  <h4>如何計算總積分</h4>
-                  <p>依照會考5科目等級計算：<br>A++, A+, A = 6分<br>B++, B+, B = 4分<br>C = 2分</p>
+            <p class="explanation-intro">本系統根據您輸入的會考成績計算總積分，並與各校歷年錄取門檻進行比對。以下是關於您的分析結果的重要說明：</p>
+            
+            <div class="explanation-cards">
+              <div class="explanation-card">
+                <div class="card-icon"><i class="fas fa-calculator"></i></div>
+                <div class="card-content">
+                  <h4>積分計算方式</h4>
+                  <p>會考各科目等級對應積分如下：</p>
+                  <div class="score-table">
+                    <div class="score-row"><span>A++, A+, A</span><span>6分</span></div>
+                    <div class="score-row"><span>B++, B+, B</span><span>4分</span></div>
+                    <div class="score-row"><span>C</span><span>2分</span></div>
+                  </div>
                 </div>
               </div>
-              <div class="explanation-point">
-                <i class="fas fa-chart-line"></i>
-                <div>
-                  <h4>錄取機率說明</h4>
-                  <p>列出的學校是根據您的總積分有可能錄取的學校，但實際錄取結果還受多種因素影響。</p>
+              
+              <div class="explanation-card">
+                <div class="card-icon"><i class="fas fa-chart-line"></i></div>
+                <div class="card-content">
+                  <h4>學校錄取機率</h4>
+                  <p>本系統顯示的學校是根據您的總積分可能錄取的學校清單。實際錄取結果可能受多種因素影響：</p>
+                  <ul class="factor-list">
+                    <li><i class="fas fa-users"></i> 該年度報考學生的整體表現</li>
+                    <li><i class="fas fa-random"></i> 學校招生名額的變動</li>
+                    <li><i class="fas fa-award"></i> 特殊才能或加分項目</li>
+                  </ul>
                 </div>
               </div>
-              <div class="explanation-point">
-                <i class="fas fa-exclamation-triangle"></i>
-                <div>
-                  <h4>注意事項</h4>
-                  <p>本分析結果僅供參考，實際錄取情況可能會受到當年報考人數、特殊加分政策等因素影響。</p>
+              
+              <div class="explanation-card">
+                <div class="card-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="card-content">
+                  <h4>重要注意事項</h4>
+                  <p>本分析結果僅供參考，請注意以下幾點：</p>
+                  <ul class="notice-list">
+                    <li>各校入學標準可能因年度而有所調整</li>
+                    <li>積分相同時，各科成績可能作為比較參考</li>
+                    <li>作文級分在同分情況下可能具有決定性影響</li>
+                  </ul>
                 </div>
               </div>
-              <div class="explanation-point">
-                <i class="fas fa-lightbulb"></i>
-                <div>
-                  <h4>建議</h4>
-                  <p>請結合個人興趣、志向與專長，並諮詢學校輔導老師意見，做出最適合自己的升學選擇。</p>
+              
+              <div class="explanation-card">
+                <div class="card-icon"><i class="fas fa-lightbulb"></i></div>
+                <div class="card-content">
+                  <h4>升學建議</h4>
+                  <p>做出最佳的升學決策，我們建議您：</p>
+                  <div class="advice-steps">
+                    <div class="advice-step"><span>1</span>結合個人興趣與專長選擇學校</div>
+                    <div class="advice-step"><span>2</span>諮詢學校輔導老師的專業意見</div>
+                    <div class="advice-step"><span>3</span>參考多方資訊，包括學校招生說明會</div>
+                    <div class="advice-step"><span>4</span>了解各校特色及未來發展方向</div>
+                  </div>
                 </div>
               </div>
+            </div>
+            
+            <div class="more-resources">
+              <h4><i class="fas fa-external-link-alt"></i> 更多升學資源</h4>
+              <p>欲了解更多關於升學資訊，請訪問 <a href="https://sites.google.com/view/cchctw/" target="_blank">彰化區會考資訊網</a></p>
             </div>
           </div>
         </div>
@@ -912,7 +942,7 @@ function exportJson(content) {
   const schoolItems = resultsElement.querySelectorAll('.school-item');
   const schools = Array.from(schoolItems).map((item, index) => {
     const nameElement = item.querySelector('.school-name');
-    const name = nameElement ? nameElement.textContent.replace(/\d+\.\s+/, '').replace(/公立|私立/, '').trim() : '';
+    const name = nameElement ? nameElement.textContent.replace(/\d+\.\s+/, '').trim() : '';
     
     const details = item.querySelector('.school-details');
     const detailsText = details ? details.textContent.trim() : '';
