@@ -870,7 +870,7 @@ function exportJson(content) {
       eligibleSchoolsCount: schools.length
     },
     eligibleSchools: schools,
-    disclaimer: '本資料僅供參考，實際錄取結果以各校放榜為準。'
+    disclaimer: '本資料僅供參考，實際錄取結果以各校公告為準。'
   };
   
   const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json;charset=utf-8' });
@@ -943,12 +943,14 @@ function printResults() {
           margin: 0 auto;
           padding: 20px;
           background-color: #f9f9f9;
+          position: relative;
         }
         .report {
           background: white;
           padding: 30px;
           border-radius: 10px;
           box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+          position: relative;
         }
         .header {
           text-align: center;
@@ -1095,6 +1097,18 @@ function printResults() {
           color: #999;
           margin-top: 30px;
         }
+        .watermark-overlay {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%) rotate(-30deg);
+          font-size: 100px;
+          color: rgba(200, 200, 200, 0.1);
+          font-weight: bold;
+          white-space: nowrap;
+          pointer-events: none;
+          z-index: 0;
+        }
         @media print {
           body {
             width: 100%;
@@ -1114,6 +1128,9 @@ function printResults() {
           .page-break {
             page-break-after: always;
           }
+          .watermark-overlay {
+            color: rgba(200, 200, 200, 0.1);
+          }
           @page {
             margin: 1.5cm;
           }
@@ -1121,6 +1138,7 @@ function printResults() {
       </style>
     </head>
     <body>
+      <div class="watermark-overlay">CHC 彰化區會考落點分析</div>
       <div class="report">
         <div class="header">
           <div class="logo">CHC 彰化區會考落點分析系統</div>
