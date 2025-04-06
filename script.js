@@ -371,7 +371,6 @@ function displayResults(data) {
         </div>`;
   }
   
-  // Enhanced analysis explanation section with improved visual design
   resultsHTML += `
         <div class="analysis-explanation">
           <h3><i class="fas fa-lightbulb icon"></i> 分析說明與建議</h3>
@@ -456,11 +455,89 @@ function displayResults(data) {
 
 document.getElementById('exportResults').onclick = showExportOptions;
 
+function initMobileFeatures() {
+  // Show/hide mobile bottom nav based on screen size
+  function toggleMobileBottomNav() {
+    const mobileNav = document.querySelector('.mobile-bottom-nav');
+    if (mobileNav) {
+      if (window.innerWidth <= 480) {
+        mobileNav.style.display = 'flex';
+      } else {
+        mobileNav.style.display = 'none';
+      }
+    }
+  }
+  
+  toggleMobileBottomNav();
+  window.addEventListener('resize', toggleMobileBottomNav);
+  
+  // Fix for iOS 100vh issue (Safari address bar)
+  function setViewportHeight() {
+    let vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  }
+  
+  setViewportHeight();
+  window.addEventListener('resize', setViewportHeight);
+  
+  // Optimize form navigation on mobile
+  const formFields = document.querySelectorAll('select, input');
+  formFields.forEach((field, index) => {
+    field.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && index < formFields.length - 1) {
+        e.preventDefault();
+        formFields[index + 1].focus();
+      }
+    });
+  });
+}
+
+function toggleMenu() {
+  const menu = document.getElementById("mainMenu");
+  const overlay = document.getElementById("menuOverlay");
+  
+  menu.classList.toggle("open");
+  overlay.classList.toggle("show");
+  
+  // Prevent background scrolling when menu is open
+  if (menu.classList.contains("open")) {
+    document.body.style.overflow = "hidden";
+  } else {
+    document.body.style.overflow = "";
+  }
+  
+  // Update theme toggle button state
+  updateMenuThemeToggle();
+}
+
+function closeMenu() {
+  const menu = document.getElementById("mainMenu");
+  const overlay = document.getElementById("menuOverlay");
+  
+  menu.classList.remove("open");
+  overlay.classList.remove("show");
+  document.body.style.overflow = "";
+}
+
+function updateMenuThemeToggle() {
+  const isDarkMode = document.body.classList.contains('dark-mode');
+  const menuThemeToggle = document.getElementById('menuThemeToggle');
+  
+  if (menuThemeToggle) {
+    const toggleThumb = menuThemeToggle.querySelector('.toggle-thumb');
+    
+    if (isDarkMode) {
+      toggleThumb.style.left = 'calc(100% - 22px)';
+    } else {
+      toggleThumb.style.left = '2px';
+    }
+  }
+}
+
 window.onload = function() {
   showDisclaimer();
-  
-  // Initialize rating system
   initRating();
+  initMobileFeatures();
 };
 
 document.oncontextmenu = function () {
@@ -565,29 +642,15 @@ function updateStarDisplay(rating) {
   });
 }
 
-function toggleMenu() {
-  var menu = document.getElementById("fullscreenMenu");
-  var overlay = document.getElementById("menuOverlay");
-  menu.classList.toggle("show");
-  overlay.classList.toggle("show");
-  
-  var links = menu.getElementsByTagName('a');
-  for (var i = 0; i < links.length; i++) {
-    links[i].style.animationDelay = (i * 0.1) + 's';
-  }
-}
-
-function closeMenu() {
-  var menu = document.getElementById("fullscreenMenu");
-  var overlay = document.getElementById("menuOverlay");
-  menu.classList.remove("show");
-  overlay.classList.remove("show");
-}
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('footerYear').textContent = new Date().getFullYear();
+  updateMenuThemeToggle();
+});
 
 document.addEventListener('click', function(event) {
-  var menu = document.getElementById("fullscreenMenu");
-  var menuIcon = document.querySelector(".menu-icon");
-  if (menu.classList.contains('show') && !menu.contains(event.target) && !menuIcon.contains(event.target)) {
+  var menu = document.getElementById("mainMenu");
+  var menuToggle = document.querySelector(".menu-toggle");
+  if (menu.classList.contains('open') && !menu.contains(event.target) && !menuToggle.contains(event.target)) {
     closeMenu();
   }
 });
@@ -599,7 +662,16 @@ document.getElementById('scanQRCode').addEventListener('click', () => {
   const qrReader = document.getElementById('qr-reader');
   if (qrReader.style.display === 'none' || qrReader.style.display === '') {
     qrReader.style.display = 'block';
-    html5QrCode.start({ facingMode: "environment" }, qrConfig, onScanSuccess);
+    
+    // Mobile-friendly camera config
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const qrConfigMobile = { 
+      fps: 10, 
+      qrbox: isMobile ? { width: 200, height: 200 } : { width: 250, height: 250 },
+      aspectRatio: isMobile ? 1.0 : undefined
+    };
+    
+    html5QrCode.start({ facingMode: "environment" }, qrConfigMobile, onScanSuccess);
   } else {
     qrReader.style.display = 'none';
     html5QrCode.stop();
@@ -682,8 +754,6 @@ if (savedDarkMode) {
 }
 
 document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
-
-document.getElementById('currentYear').textContent = new Date().getFullYear();
 
 function showExportOptions() {
   const exportMenu = document.createElement('div');
@@ -937,7 +1007,7 @@ function exportJson(content) {
   
   const resultsElement = document.getElementById('results');
   const totalPointsElement = resultsElement.querySelector('.total-points .result-value');
-  const totalPoints = totalPointsElement ? parseInt(totalPointsElement.textContent.trim()) : 0;
+  const totalPoints = totalPointsElement ? totalPointsElement.textContent.trim() : '';
   
   const schoolItems = resultsElement.querySelectorAll('.school-item');
   const schools = Array.from(schoolItems).map((item, index) => {
@@ -1440,9 +1510,6 @@ function printResults() {
           }
           .print-controls {
             display: none;
-          }
-          .page-break {
-            page-break-after: always;
           }
           .watermark-overlay {
             color: rgba(200, 200, 200, 0.08);
