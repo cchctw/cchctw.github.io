@@ -371,7 +371,6 @@ function displayResults(data) {
         </div>`;
   }
   
-  // Enhanced analysis explanation section with improved visual design
   resultsHTML += `
         <div class="analysis-explanation">
           <h3><i class="fas fa-lightbulb icon"></i> 分析說明與建議</h3>
@@ -1015,7 +1014,7 @@ function exportJson(content) {
   
   const resultsElement = document.getElementById('results');
   const totalPointsElement = resultsElement.querySelector('.total-points .result-value');
-  const totalPoints = totalPointsElement ? parseInt(totalPointsElement.textContent.trim()) : 0;
+  const totalPoints = totalPointsElement ? totalPointsElement.textContent.trim() : '';
   
   const schoolItems = resultsElement.querySelectorAll('.school-item');
   const schools = Array.from(schoolItems).map((item, index) => {
