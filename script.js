@@ -764,9 +764,6 @@ function showExportOptions() {
       <button onclick="exportResults('txt')">
         <i class="fas fa-file-alt"></i> 文字檔 (.txt)
       </button>
-      <button onclick="exportResults('pdf')">
-        <i class="fas fa-file-pdf"></i> PDF檔 (.pdf)
-      </button>
       <button onclick="exportResults('csv')">
         <i class="fas fa-file-csv"></i> CSV檔 (.csv)
       </button>
@@ -828,9 +825,6 @@ async function exportResults(format = 'txt') {
     case 'txt':
       exportTxt(contentWithWatermark);
       break;
-    case 'pdf':
-      await exportPdf(contentWithWatermark);
-      break;
     case 'csv':
       exportCsv(contentWithWatermark);
       break;
@@ -888,66 +882,6 @@ function exportTxt(content) {
   
   const blob = new Blob([formattedContent], { type: 'text/plain;charset=utf-8' });
   downloadFile(blob, '彰化區會考落點分析結果.txt');
-}
-
-async function exportPdf(content) {
-  if (!window.jsPDF) {
-    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
-  }
-  
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  
-  doc.setFillColor(198, 40, 40); 
-  doc.rect(0, 0, 210, 20, 'F');
-  
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(16);
-  doc.setFont('helvetica', 'bold');
-  doc.text('彰化區會考落點分析結果', 105, 12, { align: 'center' });
-  
-  doc.setTextColor(200, 200, 200);
-  doc.setFontSize(30);
-  doc.setFont('helvetica', 'italic');
-  doc.text('CHC 彰化區會考落點分析', 105, 150, {
-    align: 'center',
-    angle: 45
-  });
-  
-  doc.setTextColor(0, 0, 0);
-  doc.setFontSize(12);
-  doc.setFont('helvetica', 'normal');
-  
-  const splitText = doc.splitTextToSize(content, 180);
-  let y = 30;
-  
-  splitText.forEach(line => {
-    if (y > 280) {
-      doc.addPage();
-      doc.setFillColor(198, 40, 40);
-      doc.rect(0, 0, 210, 20, 'F');
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(16);
-      doc.setFont('helvetica', 'bold');
-      doc.text('彰化區會考落點分析結果', 105, 12, { align: 'center' });
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'normal');
-      y = 30;
-    }
-    doc.text(line, 15, y);
-    y += 7;
-  });
-  
-  const pageCount = doc.internal.getNumberOfPages();
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i);
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.text(`頁 ${i} / ${pageCount} - 產生時間: ${new Date().toLocaleString('zh-TW')}`, 105, 290, { align: 'center' });
-  }
-  
-  doc.save('彰化區會考落點分析結果.pdf');
 }
 
 function exportCsv(content) {
