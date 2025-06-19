@@ -392,103 +392,163 @@
 
     <div id="instructionsModal" class="modal">
       <div class="modal-content instructions-modal-content">
-        <button class="close" onclick="closeInstructions()">&times;</button>
+        <button type="button" class="close" onclick="closeInstructions()" aria-label="關閉使用說明">
+          <i class="fas fa-times"></i>
+          <span class="sr-only">關閉</span>
+        </button>
         <h2>
           <i class="fas fa-book icon"></i>使用說明
         </h2>
         
-        <div class="instruction-item">
-          <h3>
-            <i class="fas fa-key icon"></i>獲取並輸入邀請碼
-          </h3>
-          <div class="highlight">
-            <i class="fas fa-info-circle"></i> 邀請碼每小時更新一次，請確保使用最新的邀請碼。
+        <div class="instruction-steps">
+          <div class="instruction-item">
+            <h3>
+              <i class="fas fa-key icon"></i>取得邀請碼
+            </h3>
+            <div class="highlight">
+              <i class="fas fa-info-circle"></i> 邀請碼每小時更新一次，請確保使用最新的邀請碼。
+            </div>
+            <div class="step-content">
+              <p>您可以透過以下方式獲取邀請碼：</p>
+              <ul>
+                <li><i class="fas fa-file-alt"></i> 填寫序位回報表單</li>
+                <li><i class="fas fa-qrcode"></i> 掃描 QR 碼</li>
+                <li><i class="fas fa-upload"></i> 上傳 QR 碼圖片</li>
+              </ul>
+            </div>
           </div>
-          <p>您可以通過以下方式獲取邀請碼：</p>
-          <ul>
-            <li>填寫我們的序位回報表單</li>
-            <li>掃描 QR 碼</li>
-            <li>上傳 QR 碼圖片</li>
-          </ul>
-          <p>將獲得的邀請碼輸入到"邀請碼"欄位中即可開始使用。</p>
-        </div>
 
-        <div class="instruction-item">
-          <h3>
-            <i class="fas fa-filter icon"></i>選擇學校屬性和類型
-          </h3>
-          <p>根據您的需求，選擇以下篩選條件：</p>
-          <ul>
-            <li>學校屬性：全部、公立或私立</li>
-            <li>學校類型：全部、普通科或職業類科</li>
-            <li>職業群別：選擇特定職業群或全部（僅限職業類科）</li>
-          </ul>
-        </div>
-
-        <div class="instruction-item">
-          <h3>
-            <i class="fas fa-pencil-alt icon"></i>輸入會考成績
-          </h3>
-          <div class="highlight">
-            <i class="fas fa-exclamation-circle"></i> 請確保填寫所有科目的成績，否則無法進行分析。
+          <div class="instruction-item">
+            <h3>
+              <i class="fas fa-filter icon"></i>選擇學校條件
+            </h3>
+            <div class="step-content">
+              <p>依照您的需求設定以下篩選條件：</p>
+              <div class="filter-options">
+                <div class="filter-option">
+                  <i class="fas fa-building"></i>
+                  <span>學校屬性</span>
+                  <small>全部 / 公立 / 私立</small>
+                </div>
+                <div class="filter-option">
+                  <i class="fas fa-graduation-cap"></i>
+                  <span>學校類型</span>
+                  <small>全部 / 普通科 / 職業類科</small>
+                </div>
+                <div class="filter-option">
+                  <i class="fas fa-tools"></i>
+                  <span>職業群別</span>
+                  <small>選擇特定職業群或全部</small>
+                </div>
+              </div>
+            </div>
           </div>
-          <p>依序選擇各科目的會考等級：</p>
-          <ul>
-            <li>國文：A++ 到 C</li>
-            <li>英文：A++ 到 C</li>
-            <li>數學：A++ 到 C</li>
-            <li>自然：A++ 到 C</li>
-            <li>社會：A++ 到 C</li>
-            <li>作文：0 到 6 級分</li>
-          </ul>
-        </div>
 
-        <div class="instruction-item">
-          <h3>
-            <i class="fas fa-chart-line icon"></i>分析落點結果
-          </h3>
-          <p>系統會根據您的輸入進行分析並顯示：</p>
-          <ul>
-            <li>總積分計算結果</li>
-            <li>總積點計算結果</li>
-            <li>符合條件的學校列表</li>
-            <li>各類型學校的數量統計</li>
-          </ul>
-        </div>
-
-        <div class="instruction-item">
-          <h3>
-            <i class="fas fa-file-export icon"></i>匯出分析結果
-          </h3>
-          <p>您可以將分析結果匯出為文字檔案，包含：</p>
-          <ul>
-            <li>完整的分析結果</li>
-            <li>時間戳記</li>
-            <li>可能錄取學校清單</li>
-          </ul>
-          <div class="highlight">
-            <i class="fas fa-lightbulb"></i> 建議將結果匯出保存，方便日後參考比較。
+          <div class="instruction-item">
+            <h3>
+              <i class="fas fa-pencil-alt icon"></i>輸入會考成績
+            </h3>
+            <div class="highlight warning">
+              <i class="fas fa-exclamation-circle"></i> 請務必填寫所有科目成績，以確保分析準確性。
+            </div>
+            <div class="step-content">
+              <div class="score-grid">
+                <div class="score-item">
+                  <i class="fas fa-book"></i>
+                  <span>國文</span>
+                  <small>A++ 至 C</small>
+                </div>
+                <div class="score-item">
+                  <i class="fas fa-language"></i>
+                  <span>英文</span>
+                  <small>A++ 至 C</small>
+                </div>
+                <div class="score-item">
+                  <i class="fas fa-calculator"></i>
+                  <span>數學</span>
+                  <small>A++ 至 C</small>
+                </div>
+                <div class="score-item">
+                  <i class="fas fa-flask"></i>
+                  <span>自然</span>
+                  <small>A++ 至 C</small>
+                </div>
+                <div class="score-item">
+                  <i class="fas fa-globe"></i>
+                  <span>社會</span>
+                  <small>A++ 至 C</small>
+                </div>
+                <div class="score-item">
+                  <i class="fas fa-pen-nib"></i>
+                  <span>作文</span>
+                  <small>0 至 6 級分</small>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div class="instruction-item">
-          <h3>
-            <i class="fas fa-redo icon"></i>重新分析
-          </h3>
-          <p>您可以隨時：</p>
-          <ul>
-            <li>修改篩選條件</li>
-            <li>更新成績資料</li>
-            <li>重新進行分析</li>
-          </ul>
-          <div class="highlight">
-            <i class="fas fa-sync"></i> 系統會即時更新分析結果，讓您掌握不同選擇的可能性.
+          <div class="instruction-item">
+            <h3>
+              <i class="fas fa-chart-line icon"></i>查看分析結果
+            </h3>
+            <div class="step-content">
+              <p>系統會根據您的輸入進行全面分析：</p>
+              <div class="analysis-features">
+                <div class="feature">
+                  <i class="fas fa-calculator"></i>
+                  <span>總積分計算</span>
+                </div>
+                <div class="feature">
+                  <i class="fas fa-chart-bar"></i>
+                  <span>總積點統計</span>
+                </div>
+                <div class="feature">
+                  <i class="fas fa-school"></i>
+                  <span>可選校系列表</span>
+                </div>
+                <div class="feature">
+                  <i class="fas fa-percentage"></i>
+                  <span>錄取機率評估</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="instruction-item">
+            <h3>
+              <i class="fas fa-file-export icon"></i>儲存分析結果
+            </h3>
+            <div class="step-content">
+              <p>您可以將分析結果匯出為多種格式：</p>
+              <div class="export-options">
+                <div class="export-option">
+                  <i class="fas fa-file-alt"></i>
+                  <span>文字檔 (.txt)</span>
+                </div>
+                <div class="export-option">
+                  <i class="fas fa-file-csv"></i>
+                  <span>試算表 (.csv)</span>
+                </div>
+                <div class="export-option">
+                  <i class="fas fa-print"></i>
+                  <span>列印結果</span>
+                </div>
+              </div>
+              <div class="highlight tip">
+                <i class="fas fa-lightbulb"></i> 建議保存分析結果，方便日後比較參考。
+              </div>
+            </div>
           </div>
         </div>
         
-        <button class="confirm-button" onclick="closeInstructions()">
-          <i class="fas fa-check-circle icon"></i> 我已了解
-        </button>
+        <div class="instruction-footer">
+          <button class="confirm-button" onclick="closeInstructions()">
+            <i class="fas fa-check-circle icon"></i> 開始使用
+          </button>
+          <a href="https://sites.google.com/view/cchc/" target="_blank" class="help-link">
+            <i class="fas fa-question-circle"></i> 需要更多協助？
+          </a>
+        </div>
       </div>
     </div>
 
